@@ -5,7 +5,7 @@ $pair = "$($user):$($pass)"
 $encodedCreds = [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($pair))
 $basicAuthValue = "Basic $encodedCreds"
 $Headers = @{Authorization = $basicAuthValue}
-$jiraHost = "192.168.218.131"  #test
+$jiraHost = ""  #test
 
 <# $OmbordStigningsMatrosen = [PSCustomObject]@{
     tilltal    = 'Lars'
@@ -102,8 +102,6 @@ $Response
 
 $CreatedEpicKey = ($Response.content | ConvertFrom-Json).key
 
-$CreatedEpicKey
-
 
 # https://developer.atlassian.com/server/jira/platform/jira-rest-api-examples/
 echo "Host:   $jiraHost"
@@ -147,8 +145,11 @@ $Response
 
 $CreatedIssueKey = ($Response.content | ConvertFrom-Json).key
 
-$CreatedIssueKey
-
+echo "Host:   $jiraHost"
+echo "Status: $jiraStatus"
+echo "Res:    $Response"
+echo "Epic:   $CreatedEpicKey"
+echo "Issue:  $CreatedIssueKey"
 
 $CreateHRpayload = @"
 {
@@ -173,9 +174,19 @@ $CreateHRpayload = @"
 $Response = Invoke-WebRequest -Uri "https://$JiraHost/jira/rest/api/2/issue/$CreatedIssueKey/transitions" -Headers $Headers -Body $CreateHRpayload -ContentType "application/json; charset=utf-8" -Method Post -SkipCertificateCheck 
 $Response
 
-$CreatedIssueKey = ($Response.content | ConvertFrom-Json).key
+echo "Host:   $jiraHost"
+echo "Status: $jiraStatus"
+echo "Res:    $Response"
+echo "Epic:   $CreatedEpicKey"
+echo "Issue:  $CreatedIssueKey"
 
-$CreatedIssueKey
+echo "CreatedIssueKey: $CreatedIssueKey"
+$URI = "https://$JiraHost/jira/rest/api/2/issue/$CreatedIssueKey/subtask"
 
+$URI
+sleep 7
 
+# https://jiratest.havochvatten.se/jira/rest/api/2/issue/HR-97/subtask
+$Response = Invoke-WebRequest -Uri "https://$JiraHost/jira/rest/api/2/issue/$CreatedIssueKey/subtask" -Headers $Headers -ContentType "application/json; charset=utf-8" -Method Get -SkipCertificateCheck
+$Response.content | ConvertFrom-Json
 
